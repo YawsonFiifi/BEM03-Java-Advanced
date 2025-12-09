@@ -11,6 +11,7 @@ abstract public class Customer {
     private int age;
 
     Customer(String name, int age, String contact, String address){
+        this.customerId = "CUS" + ++customerCounter;
         this.name = name;
         this.age = age;
         this.contact = contact;
@@ -18,7 +19,7 @@ abstract public class Customer {
     }
 
     abstract void displayCustomerDetails();
-    abstract String getCustomerType();
+    abstract public String getCustomerType();
 
     public String getName(){
         return name;

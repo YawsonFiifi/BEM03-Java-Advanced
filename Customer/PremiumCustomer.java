@@ -8,7 +8,6 @@ public class PremiumCustomer extends Customer {
         super(name, age, contact, address);
     }
 
-
     public void displayCustomerDetails(){
 
     }

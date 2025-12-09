@@ -12,10 +12,10 @@ public class Menu extends Screen{
     }
 
     public int openScreen(){
-        String output = String.format("\n%s\n\n", getTitle());
+        StringBuilder output = new StringBuilder(String.format("\n%s\n\n", getTitle()));
 
         for(int i=1; i<=options.length; i++){
-            output += String.format("%d. %s\n", i, options[i-1]);
+            output.append(String.format("%d. %s\n", i, options[i - 1]));
         }
 
         System.out.print(output + "\n" + "Enter Choice: ");

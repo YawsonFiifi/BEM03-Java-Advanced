@@ -13,12 +13,10 @@ abstract public class Account {
     abstract public void displayAccountDetails();
     abstract public String getAccountType();
 
-    Account(Customer customer, double initialDeposite){
-        accountCounter++;
-        
-        this.accountNumber = Integer.toString(accountCounter);
+    Account(Customer customer, double initialDeposit){
+        this.accountNumber = "ACC" + ++accountCounter;
         this.customer = customer;
-        this.balance = initialDeposite;
+        this.balance = initialDeposit;
     }
 
     public String getStatus(){
@@ -26,7 +24,7 @@ abstract public class Account {
     }
 
     public void setStatus(String status){
-        if(status != "active" || status != "inactive") return;
+        if(!status.equals("active") && !status.equals("inactive")) return;
 
         this.status = status;
     }
@@ -39,15 +37,21 @@ abstract public class Account {
         balance = amount;
     }
 
-    public void deposite(double amount) {
+    public void deposit(double amount) {
         balance += amount;
     }
 
-    public void withdraw(double amount){
+    public boolean withdraw(double amount){
         balance -= amount;
+
+        return true;
     }
 
     public String getAccountNumber(){
         return accountNumber;
+    }
+
+    public Customer getCustomer(){
+        return customer;
     }
 }

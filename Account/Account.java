@@ -1,4 +1,6 @@
 package Account;
+import CustomExceptions.AccountCreationException;
+import CustomExceptions.WithdrawalException;
 import Customer.Customer;
 
 
@@ -13,7 +15,10 @@ abstract public class Account {
     abstract public void displayAccountDetails();
     abstract public String getAccountType();
 
-    Account(Customer customer, double initialDeposit){
+    Account(Customer customer, double initialDeposit) throws AccountCreationException {
+        if(customer.getCustomerType().equals("Premium Customer") && initialDeposit < 10000) {
+            throw new AccountCreationException("Minimum balance should be $10,000 or more for Premium Customers");
+        }
         this.accountNumber = "ACC" + ++accountCounter;
         this.customer = customer;
         this.balance = initialDeposit;
@@ -41,10 +46,8 @@ abstract public class Account {
         balance += amount;
     }
 
-    public boolean withdraw(double amount){
+    public void withdraw(double amount) throws WithdrawalException {
         balance -= amount;
-
-        return true;
     }
 
     public String getAccountNumber(){

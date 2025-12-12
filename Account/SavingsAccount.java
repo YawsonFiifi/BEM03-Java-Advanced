@@ -1,5 +1,7 @@
 package Account;
 
+import CustomExceptions.AccountCreationException;
+import CustomExceptions.WithdrawalException;
 import Customer.Customer;
 
 
@@ -7,7 +9,11 @@ public class SavingsAccount extends Account{
     private double interestRate;
     private double minimumBalance;
 
-    public SavingsAccount(Customer customer, double initialDeposit){
+    public SavingsAccount(Customer customer, double initialDeposit) throws AccountCreationException {
+        if(initialDeposit < 500){
+            throw new AccountCreationException("Initial deposit amount must be greater than 500 for savings accounts. Initial deposite is "+ initialDeposit);
+        }
+
         this.interestRate = 3.5;
         this.minimumBalance = 500;
 
@@ -41,15 +47,12 @@ public class SavingsAccount extends Account{
         return "Savings";
     }
     
-    public boolean withdraw(double amount){
+    public void withdraw(double amount) throws WithdrawalException {
         if(getBalance() - amount < minimumBalance) {
-            System.out.println("Withdrawal limit reached");
-            return false;
+            throw new WithdrawalException("Withdrawal limit reached, maximum withdrawal amount is " + (getBalance() - minimumBalance));
         };
 
         setBalance(getBalance() - amount);
-
-        return true;
     } 
 
     public double calculateInterest(){

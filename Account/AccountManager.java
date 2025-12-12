@@ -1,5 +1,7 @@
 package Account;
 
+import CustomExceptions.AccountNotFound;
+
 public class AccountManager {
     private final Account[] accounts = new Account[50];
     static private int accountCount = 0;
@@ -8,7 +10,7 @@ public class AccountManager {
         accounts[accountCount++] = account;
     }
 
-    public Account findAccount(String accountNumber) {
+    public Account findAccount(String accountNumber) throws AccountNotFound {
         for(Account account : accounts) {
             if(account == null) break;
 
@@ -17,7 +19,7 @@ public class AccountManager {
             }
         }
 
-        return null;
+        throw new AccountNotFound("Account not found: " + accountNumber);
     }
 
     public void viewAllAccounts(){

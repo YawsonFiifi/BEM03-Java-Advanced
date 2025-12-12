@@ -2,6 +2,7 @@ import Account.Account;
 import Account.CheckingAccount;
 import Account.SavingsAccount;
 import Account.AccountManager;
+import CustomExceptions.*;
 import Customer.Customer;
 import Customer.PremiumCustomer;
 import Customer.RegularCustomer;
@@ -28,10 +29,21 @@ void main() {
 
         switch (menuResponse) {
             case 1: {
-                String name = new Prompt(scanner, "ACCOUNT CREATION", "Enter customer name").openScreen();
-                int age = Integer.parseInt(new Prompt(scanner, null, "Enter customer age").openScreen());
-                String contact = new Prompt(scanner, null, "Enter customer contact").openScreen();
-                String address = new Prompt(scanner, null, "Enter customer address").openScreen();
+                String name;
+                int age;
+                String contact;
+                String address;
+
+                try{
+                    name = new Prompt(scanner, "ACCOUNT CREATION", "Enter customer name").openScreen();
+                    age = Integer.parseInt(new Prompt(scanner, null, "Enter customer age").openScreen());
+                    contact = new Prompt(scanner, null, "Enter customer contact").openScreen();
+                    address = new Prompt(scanner, null, "Enter customer address").openScreen();
+                }catch(NumberFormatException nfe){
+                    nfe.printStackTrace();
+                    System.out.println("Invalid input");
+                    continue;
+                }
 
                 int customerType = new Menu(scanner, "Customer Type", new String[]{
                         "Regular Customer",
@@ -60,33 +72,36 @@ void main() {
                         "Checking Account"
                 }).openScreen();
 
-                double initialDeposit = Double.parseDouble(new Prompt(scanner, null, "Enter initial deposit amount").openScreen());
+                double initialDeposit;
 
-                if(customer.getCustomerType().equals("Premium Customer") && initialDeposit < 10000) {
-                    System.out.println("Minimum balance should be $10,000 or more for Premium Customers");
+                try{
+                    initialDeposit = Double.parseDouble(new Prompt(scanner, null, "Enter initial deposit amount").openScreen());
+                }catch(NumberFormatException nfe){
+                    nfe.printStackTrace();
+                    System.out.println("Invalid input");
                     continue;
                 }
 
                 Account account;
 
-                switch (accountType) {
-                    case 1: {
-                        account = new SavingsAccount(customer, initialDeposit);
-                        break;
-                    }
-                    case 2: {
-                        if(initialDeposit < 500){
-                            System.out.println("Initial deposit amount must be greater than 500");
+                try{
+                    switch (accountType) {
+                        case 1: {
+                            account = new SavingsAccount(customer, initialDeposit);
+                            break;
+                        }
+                        case 2: {
+                            account = new CheckingAccount(customer, initialDeposit);
+                            break;
+                        }
+                        default: {
+                            System.out.println("Invalid input\n");
                             continue;
                         }
-
-                        account = new CheckingAccount(customer, initialDeposit);
-                        break;
                     }
-                    default: {
-                        System.out.println("Invalid input\n");
-                        continue;
-                    }
+                }catch(AccountCreationException ace){
+                    ace.printStackTrace();
+                    continue;
                 }
 
                 accountManager.addAccount(account);
@@ -105,11 +120,15 @@ void main() {
                 continue;
             }
             case 3: {
-                Account account = accountManager.findAccount(new Prompt(scanner, "Process Transaction", "Enter Account Number").openScreen());
+                Account account;
 
-                if(account == null) {
-                    System.out.println("Account not found\n");
-
+                try{
+                    account = accountManager.findAccount(new Prompt(scanner, "Process Transaction", "Enter Account Number").openScreen());
+                }catch(AccountNotFound anf){
+                    anf.printStackTrace();
+                    continue;
+                }catch(Exception e){
+                    e.printStackTrace();
                     continue;
                 }
 
@@ -142,13 +161,24 @@ void main() {
                     }
                 }
 
-                double amount = Double.parseDouble((new Prompt(scanner, null, "Enter Amount: ")).openScreen());
+                double amount;
+
+                try{
+                    amount = Double.parseDouble((new Prompt(scanner, null, "Enter Amount: ")).openScreen());
+                }catch(NumberFormatException nfe){
+                    nfe.printStackTrace();
+                    System.out.println("Input a number\n");
+                    continue;
+                }catch(Exception e){
+                    e.printStackTrace();
+                    System.out.println("Invalid input\n");
+                    continue;
+                }
+
 
                 boolean isWithdrawal = transactionType.equals("WITHDRAWAL");
 
-                double newBalance = isWithdrawal
-                        ? account.getBalance() - amount
-                        : account.getBalance() + amount;
+                double newBalance = account.getBalance() + (isWithdrawal ? -amount : amount);
 
                 Transaction transaction = new Transaction(account.getAccountNumber(), transactionType, amount, newBalance);
 
@@ -163,9 +193,22 @@ void main() {
                 if(!confirm.equalsIgnoreCase("Y")) continue;
 
                 if(isWithdrawal){
-                    if(!account.withdraw(amount)) continue;
+                    try{
+                        if(account.getAccountType().equals("Checking Account")){
+                            ((CheckingAccount)account).withdraw(amount);
+                        }else {
+                            ((SavingsAccount)account).withdraw(amount);
+                        }
+                    }catch(WithdrawalException we) {
+                        we.printStackTrace();
+                        continue;
+                    }
                 }else{
-                    account.deposit(amount);
+                    if(account.getAccountType().equals("Checking Account")){
+                        ((CheckingAccount)account).deposit(amount);
+                    }else {
+                        ((SavingsAccount)account).deposit(amount);
+                    }
                 }
 
                 transactionManager.addTransaction(transaction);
@@ -177,12 +220,13 @@ void main() {
 
                 continue;
             }
-            case 4:{
-                Account account = accountManager.findAccount(new Prompt(scanner, "VIEW TRANSACTION HISTORY", "Enter Account Number").openScreen());
+            case 4: {
+                Account account;
 
-                if(account == null) {
-                    System.out.println("Account not found\n");
-
+                try{
+                    account = accountManager.findAccount(new Prompt(scanner, "VIEW TRANSACTION HISTORY", "Enter Account Number").openScreen());
+                }catch(AccountNotFound anf){
+                    anf.printStackTrace();
                     continue;
                 }
 

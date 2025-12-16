@@ -1,5 +1,7 @@
 package Account;
 
+import CustomExceptions.AccountCreationException;
+import CustomExceptions.InsufficientFundsException;
 import Customer.Customer;
 
 
@@ -7,7 +9,7 @@ public class CheckingAccount extends Account {
     private double overdraftLimite;
     private double monthlyFees;
 
-    public CheckingAccount(Customer customer, double initialDeposit){
+    public CheckingAccount(Customer customer, double initialDeposit) throws AccountCreationException {
         overdraftLimite = 1000;
         monthlyFees = customer.getCustomerType().equals("Premium") ? 0 : 10;
 
@@ -42,15 +44,12 @@ public class CheckingAccount extends Account {
         return "Checking";
     }
 
-    public boolean withdraw(double amount){
+    public void withdraw(double amount) throws InsufficientFundsException {
         if(amount - getBalance() > overdraftLimite) {
-            System.out.printf("Withdrawal exceeds overdraft amount of $%s", overdraftLimite);
-            return false;
+            throw new InsufficientFundsException("Withdrawal exceeds overdraft amount of $"+overdraftLimite);
         }
 
         setBalance(getBalance() - amount);
-
-        return true;
     }
 
     public void applyMonthlyFee(){

@@ -1,7 +1,7 @@
 package Account;
 
 import CustomExceptions.AccountCreationException;
-import CustomExceptions.WithdrawalException;
+import CustomExceptions.InsufficientFundsException;
 import Customer.Customer;
 
 
@@ -44,9 +44,9 @@ public class CheckingAccount extends Account {
         return "Checking";
     }
 
-    public void withdraw(double amount) throws WithdrawalException {
+    public void withdraw(double amount) throws InsufficientFundsException {
         if(amount - getBalance() > overdraftLimite) {
-            throw new WithdrawalException("Withdrawal exceeds overdraft amount of $"+overdraftLimite);
+            throw new InsufficientFundsException("Withdrawal exceeds overdraft amount of $"+overdraftLimite);
         }
 
         setBalance(getBalance() - amount);

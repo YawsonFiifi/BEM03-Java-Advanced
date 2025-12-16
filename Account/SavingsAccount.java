@@ -1,7 +1,7 @@
 package Account;
 
 import CustomExceptions.AccountCreationException;
-import CustomExceptions.WithdrawalException;
+import CustomExceptions.InsufficientFundsException;
 import Customer.Customer;
 
 
@@ -47,9 +47,9 @@ public class SavingsAccount extends Account{
         return "Savings";
     }
     
-    public void withdraw(double amount) throws WithdrawalException {
+    public void withdraw(double amount) throws InsufficientFundsException {
         if(getBalance() - amount < minimumBalance) {
-            throw new WithdrawalException("Withdrawal limit reached, maximum withdrawal amount is " + (getBalance() - minimumBalance));
+            throw new InsufficientFundsException("Withdrawal limit reached, maximum withdrawal amount is " + (getBalance() - minimumBalance));
         };
 
         setBalance(getBalance() - amount);

@@ -40,8 +40,7 @@ void main() {
                     contact = new Prompt(scanner, null, "Enter customer contact").openScreen();
                     address = new Prompt(scanner, null, "Enter customer address").openScreen();
                 }catch(NumberFormatException nfe){
-                    nfe.printStackTrace();
-                    System.out.println("Invalid input");
+                    System.out.println(nfe.getMessage());
                     continue;
                 }
 
@@ -77,8 +76,7 @@ void main() {
                 try{
                     initialDeposit = Double.parseDouble(new Prompt(scanner, null, "Enter initial deposit amount").openScreen());
                 }catch(NumberFormatException nfe){
-                    nfe.printStackTrace();
-                    System.out.println("Invalid input");
+                    System.out.println(nfe.getMessage());
                     continue;
                 }
 
@@ -100,7 +98,7 @@ void main() {
                         }
                     }
                 }catch(AccountCreationException ace){
-                    ace.printStackTrace();
+                    System.out.println(ace.getMessage());
                     continue;
                 }
 
@@ -124,14 +122,10 @@ void main() {
 
                 try{
                     account = accountManager.findAccount(new Prompt(scanner, "Process Transaction", "Enter Account Number").openScreen());
-                }catch(AccountNotFound anf){
-                    anf.printStackTrace();
-                    continue;
                 }catch(Exception e){
-                    e.printStackTrace();
+                    System.out.println(e.getMessage());
                     continue;
                 }
-
                 System.out.printf("""
                     Account Details:
                     Customer: %s,
@@ -166,11 +160,9 @@ void main() {
                 try{
                     amount = Double.parseDouble((new Prompt(scanner, null, "Enter Amount: ")).openScreen());
                 }catch(NumberFormatException nfe){
-                    nfe.printStackTrace();
-                    System.out.println("Input a number\n");
+                    System.out.println(nfe.getMessage());
                     continue;
                 }catch(Exception e){
-                    e.printStackTrace();
                     System.out.println("Invalid input\n");
                     continue;
                 }
@@ -199,15 +191,19 @@ void main() {
                         }else {
                             ((SavingsAccount)account).withdraw(amount);
                         }
-                    }catch(WithdrawalException we) {
-                        we.printStackTrace();
+                    }catch(InsufficientFundsException ife) {
+                        System.out.println(ife.getMessage());
                         continue;
                     }
                 }else{
-                    if(account.getAccountType().equals("Checking Account")){
-                        ((CheckingAccount)account).deposit(amount);
-                    }else {
-                        ((SavingsAccount)account).deposit(amount);
+                    try{
+                        if(account.getAccountType().equals("Checking Account")){
+                            ((CheckingAccount)account).deposit(amount);
+                        }else {
+                            ((SavingsAccount)account).deposit(amount);
+                        }
+                    }catch(InvalidDepositException id) {
+                        continue;
                     }
                 }
 
@@ -226,7 +222,7 @@ void main() {
                 try{
                     account = accountManager.findAccount(new Prompt(scanner, "VIEW TRANSACTION HISTORY", "Enter Account Number").openScreen());
                 }catch(AccountNotFound anf){
-                    anf.printStackTrace();
+                    System.out.println(anf.getMessage());
                     continue;
                 }
 

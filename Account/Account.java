@@ -1,6 +1,7 @@
 package Account;
 import CustomExceptions.AccountCreationException;
-import CustomExceptions.WithdrawalException;
+import CustomExceptions.InvalidDepositException;
+import CustomExceptions.InsufficientFundsException;
 import Customer.Customer;
 
 
@@ -42,11 +43,19 @@ abstract public class Account {
         balance = amount;
     }
 
-    public void deposit(double amount) {
+    public void deposit(double amount) throws InvalidDepositException {
+        if(amount < 0) {
+            throw new InvalidDepositException("Invalid amount, amount must be greater than 0");
+        }
+
         balance += amount;
     }
 
-    public void withdraw(double amount) throws WithdrawalException {
+    public void withdraw(double amount) throws InsufficientFundsException {
+        if(amount > balance) {
+            throw new InsufficientFundsException("Insufficient funds. Current balance: " + balance);
+        }
+
         balance -= amount;
     }
 

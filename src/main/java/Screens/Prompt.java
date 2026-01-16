@@ -14,7 +14,7 @@ public class Prompt extends Screen {
 
     public String openScreen(){
         if(getTitle() != null)
-        System.out.println(getTitle()+"\n");
+            System.out.println(getTitle()+"\n");
 
         System.out.print(prompt + ": ");
 
@@ -23,5 +23,5 @@ public class Prompt extends Screen {
         System.out.println();
 
         return promptResponse;
-    };
+    }
 }

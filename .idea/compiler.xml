@@ -6,12 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Banking System" />
         <module name="Banking System (1)" />
+        <module name="maven-sample" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="maven-sample" target="25" />
+      <module name="Banking System" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

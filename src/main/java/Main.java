@@ -14,6 +14,13 @@ import Screens.Prompt;
 import models.Transaction;
 import services.TransactionManager;
 import java.util.Scanner;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
 
 public class Main {
     public static void main(String[] args) {
@@ -195,22 +202,14 @@ public class Main {
 
                     if (isWithdrawal) {
                         try {
-                            if (account.getAccountType().equals("Checking Account")) {
-                                ((CheckingAccount) account).withdraw(amount);
-                            } else {
-                                ((SavingsAccount) account).withdraw(amount);
-                            }
+                                account.withdraw(amount);
                         } catch (InsufficientFundsException ife) {
                             System.out.println(ife.getMessage());
                             continue;
                         }
                     } else {
                         try {
-                            if (account.getAccountType().equals("Checking Account")) {
-                                ((CheckingAccount) account).deposit(amount);
-                            } else {
-                                ((SavingsAccount) account).deposit(amount);
-                            }
+                            account.deposit(amount);
                         } catch (InvalidDepositException id) {
                             continue;
                         }
@@ -252,7 +251,42 @@ public class Main {
                     continue;
                 }
                 case 5: {
+                    System.out.println("\n--- RUNNING SYSTEM TESTS (JUnit 5) ---");
 
+                    // 1. Create a request to discover tests in your project package
+                    LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+                            .selectors(selectPackage("java")) // Change "tests" to the package where your JUnit files live
+                            .build();
+
+                    Launcher launcher = LauncherFactory.create();
+                    SummaryGeneratingListener listener = new SummaryGeneratingListener();
+
+                    // 2. Register a listener to capture results
+                    launcher.registerTestExecutionListeners(listener);
+
+                    // 3. Execute the tests
+                    launcher.execute(request);
+
+                    // 4. Display the results to the console
+                    TestExecutionSummary summary = listener.getSummary();
+
+                    System.out.println("\n================ TEST SUMMARY ================");
+                    System.out.println("Tests Found:     " + summary.getTestsFoundCount());
+                    System.out.println("Tests Succeeded: " + summary.getTestsSucceededCount());
+                    System.out.println("Tests Failed:    " + summary.getTestsFailedCount());
+
+                    if (summary.getTestsFailedCount() > 0) {
+                        System.out.println("\n--- FAILURE DETAILS ---");
+                        summary.getFailures().forEach(failure -> {
+                            System.out.println("Test: " + failure.getTestIdentifier().getDisplayName());
+                            System.out.println("Reason: " + failure.getException().getMessage());
+                        });
+                    }
+                    System.out.println("==============================================");
+
+                    System.out.print("Press Enter to return to Main Menu...");
+                    scanner.nextLine();
+                    continue;
                 }
                 case 6: {
                     System.out.print("Thank you for using the Bank Account Management System!\n");

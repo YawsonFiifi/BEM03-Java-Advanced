@@ -48,7 +48,7 @@ public class SavingsAccount extends Account {
     public void withdraw(double amount) throws InsufficientFundsException {
         if(getBalance() - amount < minimumBalance) {
             throw new InsufficientFundsException("Withdrawal limit reached, maximum withdrawal amount is " + (getBalance() - minimumBalance));
-        };
+        }
 
         setBalance(getBalance() - amount);
     } 

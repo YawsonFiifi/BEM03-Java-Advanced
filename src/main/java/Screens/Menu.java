@@ -31,7 +31,6 @@ public class Menu extends Screen{
                 System.out.println("Input a number in the options disaplayed, try again");
                 continue;
             }catch(Exception e){
-                e.printStackTrace();
                 System.out.println("Invalid input, try again");
                 continue;
             }

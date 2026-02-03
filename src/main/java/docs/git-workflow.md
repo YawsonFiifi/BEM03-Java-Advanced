@@ -13,7 +13,7 @@ git config user.email "your.email@example.com"
 
 main branches:
 - master - Production code
-- develop - Development integration
+- feature - featurement integration
 
 Feature branches:
 - feature/exceptions
@@ -44,9 +44,9 @@ git push origin feature/exceptions
 
 Merge back to master:
 ```bash
-git checkout develop
+git checkout feature
 git merge feature/exceptions
-git push origin develop
+git push origin feature
 git branch -d feature/exceptions
 ```
 
@@ -114,7 +114,7 @@ When conflicts occur:
 
 Create release:
 ```bash
-git checkout develop
+git checkout feature
 git checkout -b release/1.0.0
 # Update version numbers
 git commit -m "Bump version to 1.0.0"
@@ -142,8 +142,8 @@ build/
 
 Morning:
 ```bash
-git checkout develop
-git pull origin develop
+git checkout feature
+git pull origin feature
 ```
 
 During work:
@@ -162,13 +162,13 @@ git push origin feature/my-feature
 
 Before pushing:
 ```bash
-git pull origin develop
+git pull origin feature
 ```
 
 Update feature branch:
 ```bash
 git checkout feature/my-feature
-git merge develop
+git merge feature
 ```
 
 ## Feature Branch Examples
@@ -208,10 +208,10 @@ git checkout correct-branch
 git stash pop
 ```
 
-Need to update from develop:
+Need to update from feature:
 ```bash
 git checkout feature/my-feature
-git merge develop
+git merge feature
 ```
 
 ## Version Tags
@@ -233,7 +233,7 @@ Basic workflow:
 1. Create feature branch
 2. Make changes and commit
 3. Push to remote
-4. Merge to develop
+4. Merge to feature
 5. Delete feature branch
 
 This workflow supports the project's requirements for version control integration with feature branches and controlled merging.

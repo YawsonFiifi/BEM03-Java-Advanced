@@ -32,7 +32,7 @@ class AccountTest {
     }
 
     @Test
-    @DisplayName("Test Withdraw Below Minimum Exception")
+    @DisplayName("Test Withdraw Below Minimum Balance Exception")
     public void testWithdrawBelowMinimumThrowsException() throws Exception {
         SavingsAccount account = new SavingsAccount(regularCustomer, 1000);
 

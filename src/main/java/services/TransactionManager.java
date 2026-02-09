@@ -2,12 +2,14 @@ package services;
 
 import models.Transaction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TransactionManager {
-    private Transaction[] transactions = new Transaction[200];
-    static private int transactionCount = 0;
+    private final List<Transaction> transactions = new ArrayList<Transaction>();
 
     public void addTransaction(Transaction transaction){
-        transactions[transactionCount++] = transaction;
+        transactions.add(transaction);
     }
 
     public void viewTransactionsByAccount(String accountNumber){
@@ -78,9 +80,5 @@ public class TransactionManager {
             }
         }
         return totalWithdrawals;
-    }
-
-    public int getTransactionCount(){
-        return transactionCount;
     }
 }

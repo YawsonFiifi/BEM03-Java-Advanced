@@ -5,12 +5,14 @@ import models.Account;
 import models.CheckingAccount;
 import models.SavingsAccount;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AccountManager {
-    private final Account[] accounts = new Account[50];
-    static private int accountCount = 0;
+    private final List<Account> accounts = new ArrayList<Account>();
 
     public void addAccount(Account account) {
-        accounts[accountCount++] = account;
+        accounts.add(account);
     }
 
     public Account findAccount(String accountNumber) throws AccountNotFound {
@@ -64,7 +66,7 @@ public class AccountManager {
         %nTotal Accounts: %d
         Total Bank Balance: $%.2f
         """,
-                accountCount,
+                accounts.size(),
                 getTotalBalance()
         ));
 
@@ -79,9 +81,5 @@ public class AccountManager {
             totalBalance += account.getBalance();
         }
         return totalBalance;
-    }
-
-    public int getAccountCount(){
-        return accountCount;
     }
 }

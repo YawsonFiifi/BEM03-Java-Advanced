@@ -4,6 +4,8 @@ import models.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TransactionManager {
     private final List<Transaction> transactions = new ArrayList<Transaction>();
@@ -13,6 +15,22 @@ public class TransactionManager {
     }
 
     public void viewTransactionsByAccount(String accountNumber){
+        List<Transaction> userTransactions = transactions.stream()
+                .filter(transaction ->
+                        transaction.getAccountNumber().equalsIgnoreCase(accountNumber)
+                ).toList();
+
+        if(userTransactions.isEmpty()){
+            System.out.println("""
+                --------------------------------------------------------------------------
+                No transactions recorded for this account.
+                --------------------------------------------------------------------------
+                """
+            );
+
+            return;
+        }
+
         StringBuilder output = new StringBuilder("""
             TRANSACTIONS
             --------------------------------------------------------------------------
@@ -20,27 +38,26 @@ public class TransactionManager {
             --------------------------------------------------------------------------
             """);
 
-        int counter = 0;
-        double netChange = 0;
+        output.append(
+                userTransactions.stream()
+                .map(transaction -> {
+                    boolean isWithdrawal = transaction.getType().equals("WITHDRAWAL");
 
-        for(Transaction transaction : transactions){
-            if(transaction == null) break;
+                    return String.format("%-9s | %-13s | %c$%-11.2f | $%.2f%n",
+                            transaction.getTransactionId(),
+                            transaction.getType(),
+                            isWithdrawal ? '-' : '+',
+                            transaction.getAmount(),
+                            transaction.getBalanceAfter()
+                    );
+                })
+                .collect(Collectors.joining())
+        );
 
-            if(transaction.getAccountNumber().equals(accountNumber)){
-                boolean isWithdrawal = transaction.getType().equals("WITHDRAWAL");
-                netChange = netChange + (isWithdrawal ? -transaction.getAmount() : transaction.getAmount());
-
-                output.append(String.format("%-9s | %-13s | %c$%-11.2f | $%.2f%n",
-                        transaction.getTransactionId(),
-                        transaction.getType(),
-                        isWithdrawal ? '-' : '+',
-                        transaction.getAmount(),
-                        transaction.getBalanceAfter()
-                ));
-
-                counter++;
-            }
-        }
+        double netChange = userTransactions.stream()
+                .map(transaction ->
+                        transaction.getType().equals("WITHDRAWAL") ? -transaction.getAmount() : transaction.getAmount()
+                ).mapToDouble(Double::doubleValue).sum();
 
         output.append("--------------------------------------------------------------------------\n");
         output.append(String.format("Net Change: %c$%.2f%n",
@@ -48,37 +65,22 @@ public class TransactionManager {
                 Math.abs(netChange)
         ));
 
-        System.out.println(counter == 0 ? """
-    --------------------------------------------------------------------------
-    No transactions recorded for this account.
-    --------------------------------------------------------------------------
-    """ : output.toString());
+        System.out.println(output.toString());
     }
 
     public double calculateTotalDeposits(String accountNumber){
-        double totalDeposits = 0;
-
-        for(Transaction transaction : transactions){
-            if(transaction == null) break;
-
-            if(transaction.getAccountNumber().equalsIgnoreCase(accountNumber) && transaction.getType().equalsIgnoreCase("DEPOSIT")){
-                totalDeposits += transaction.getAmount();
-            }
-        }
-
-        return totalDeposits;
+        return transactions.stream()
+            .filter(transaction ->
+                        transaction.getAccountNumber().equalsIgnoreCase(accountNumber) && transaction.getType().equals("DEPOSIT")
+            )
+            .mapToDouble(Transaction::getAmount).sum();
     }
 
     public double calculateTotalWithdrawals(String accountNumber){
-        double totalWithdrawals = 0;
-
-        for(Transaction transaction : transactions){
-            if(transaction == null) break;
-
-            if(transaction.getAccountNumber().equals(accountNumber) && transaction.getType().equals("WITHDRAWAL")){
-                totalWithdrawals += transaction.getAmount();
-            }
-        }
-        return totalWithdrawals;
+        return transactions.stream()
+                .filter(transaction ->
+                        transaction.getAccountNumber().equalsIgnoreCase(accountNumber) && transaction.getType().equals("WITHDRAWAL")
+                )
+                .mapToDouble(Transaction::getAmount).sum();
     }
 }

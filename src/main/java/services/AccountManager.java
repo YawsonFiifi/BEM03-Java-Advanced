@@ -6,7 +6,10 @@ import models.CheckingAccount;
 import models.SavingsAccount;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AccountManager {
     private final List<Account> accounts = new ArrayList<Account>();
@@ -16,15 +19,8 @@ public class AccountManager {
     }
 
     public Account findAccount(String accountNumber) throws AccountNotFound {
-        for(Account account : accounts) {
-            if(account == null) break;
-
-            if(account.getAccountNumber().equalsIgnoreCase(accountNumber)) {
-                return account;
-            }
-        }
-
-        throw new AccountNotFound("Account not found: " + accountNumber);
+        return accounts.stream().filter(account ->
+                account.getAccountNumber().equals(accountNumber)).findFirst().orElseThrow(AccountNotFound::new);
     }
 
     public void viewAllAccounts(){
@@ -36,31 +32,26 @@ public class AccountManager {
         """
         );
 
-        for(Account account : accounts) {
-            if(account == null) break;
+        String accountsDetails = accounts.stream().map(account -> {
 
-            String accountDetails = account.getAccountType().equals("Savings")
-                    ? String.format("Interest Rate: %.1f%% | Min Balance: $%.2f",
-                    ((SavingsAccount)account).getInterestRate(),
-                    ((SavingsAccount)account).getMinimumBalance())
-                    : String.format("Overdraft Limit: $%.2f | Monthly Fee: $%.2f",
-                    ((CheckingAccount)account).getOverdraftLimit(),
-                    ((CheckingAccount)account).getMonthlyFees());
-
-            output.append(String.format("%-9s | %-20s | %-13s | $%-12.2f | %s%n",
+            return String.format("%-9s | %-20s | %-13s | $%-12.2f | %s%n          | %s%n",
                     account.getAccountNumber(),
                     account.getCustomer().getName(),
                     account.getAccountType(),
                     account.getBalance(),
-                    account.getStatus()
-            ));
+                    account.getStatus(),
+                    account.getAccountType().equals("Savings")
+                            ? String.format("Interest Rate: %.1f%% | Min Balance: $%.2f",
+                            ((SavingsAccount) account).getInterestRate(),
+                            ((SavingsAccount) account).getMinimumBalance())
+                            : String.format("Overdraft Limit: $%.2f | Monthly Fee: $%.2f",
+                            ((CheckingAccount) account).getOverdraftLimit(),
+                            ((CheckingAccount) account).getMonthlyFees())
+            );
 
-            output.append(String.format("          | %s%n",
-                    accountDetails
-            ));
+        }).collect(Collectors.joining("---------------------------------------------------------------\n"));
 
-            output.append("---------------------------------------------------------------\n");
-        }
+        output.append(accountsDetails);
 
         output.append(String.format("""
         %nTotal Accounts: %d
@@ -74,12 +65,8 @@ public class AccountManager {
     }
 
     public double getTotalBalance(){
-        double totalBalance = 0;
-        for(Account account : accounts) {
-            if(account == null) break;
-
-            totalBalance += account.getBalance();
-        }
-        return totalBalance;
+        return accounts.stream()
+                .mapToDouble(Account::getBalance)
+                .sum();
     }
 }

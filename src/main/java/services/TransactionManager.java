@@ -2,25 +2,24 @@ package services;
 
 import models.Transaction;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TransactionManager {
-    private final List<Transaction> transactions = new ArrayList<Transaction>();
+    private final HashMap<String, List<Transaction>> transactions = new HashMap<String, List<Transaction>>();
 
     public void addTransaction(Transaction transaction){
-        transactions.add(transaction);
+        List<Transaction> userTransactions = transactions.computeIfAbsent(
+                transaction.getAccountNumber(), k -> new ArrayList<Transaction>()
+        );
+
+        userTransactions.add(transaction);
     }
 
     public void viewTransactionsByAccount(String accountNumber){
-        List<Transaction> userTransactions = transactions.stream()
-                .filter(transaction ->
-                        transaction.getAccountNumber().equalsIgnoreCase(accountNumber)
-                ).toList();
+        List<Transaction> userTransactions = transactions.get(accountNumber);
 
-        if(userTransactions.isEmpty()){
+        if(userTransactions == null || userTransactions.isEmpty()){
             System.out.println("""
                 --------------------------------------------------------------------------
                 No transactions recorded for this account.
@@ -69,18 +68,10 @@ public class TransactionManager {
     }
 
     public double calculateTotalDeposits(String accountNumber){
-        return transactions.stream()
-            .filter(transaction ->
-                        transaction.getAccountNumber().equalsIgnoreCase(accountNumber) && transaction.getType().equals("DEPOSIT")
-            )
-            .mapToDouble(Transaction::getAmount).sum();
+        return transactions.get(accountNumber).stream().mapToDouble(Transaction::getAmount).sum();
     }
 
     public double calculateTotalWithdrawals(String accountNumber){
-        return transactions.stream()
-                .filter(transaction ->
-                        transaction.getAccountNumber().equalsIgnoreCase(accountNumber) && transaction.getType().equals("WITHDRAWAL")
-                )
-                .mapToDouble(Transaction::getAmount).sum();
+        return transactions.get(accountNumber).stream().mapToDouble(Transaction::getAmount).sum();
     }
 }

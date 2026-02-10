@@ -5,22 +5,24 @@ import models.Account;
 import models.CheckingAccount;
 import models.SavingsAccount;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AccountManager {
-    private final List<Account> accounts = new ArrayList<Account>();
+    private final Map<String, Account> accounts = new HashMap<String, Account>();
 
     public void addAccount(Account account) {
-        accounts.add(account);
+        accounts.put(account.getAccountNumber(), account);
     }
 
     public Account findAccount(String accountNumber) throws AccountNotFound {
-        return accounts.stream().filter(account ->
-                account.getAccountNumber().equals(accountNumber)).findFirst().orElseThrow(AccountNotFound::new);
+        Account account = accounts.get(accountNumber);
+
+        if(account == null){
+            throw new AccountNotFound(accountNumber);
+        }
+
+        return account;
     }
 
     public void viewAllAccounts(){
@@ -32,7 +34,7 @@ public class AccountManager {
         """
         );
 
-        String accountsDetails = accounts.stream().map(account -> {
+        String accountsDetails = accounts.values().stream().map(account -> {
 
             return String.format("%-9s | %-20s | %-13s | $%-12.2f | %s%n          | %s%n",
                     account.getAccountNumber(),
@@ -65,7 +67,7 @@ public class AccountManager {
     }
 
     public double getTotalBalance(){
-        return accounts.stream()
+        return accounts.values().stream()
                 .mapToDouble(Account::getBalance)
                 .sum();
     }

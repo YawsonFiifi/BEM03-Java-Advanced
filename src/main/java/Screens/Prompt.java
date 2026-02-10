@@ -2,9 +2,17 @@ package Screens;
 
 import java.util.Scanner;
 
-public class Prompt extends Screen {
+public class Prompt extends Screen<String> {
 
-    private String prompt;
+    private final String prompt;
+    private String regex;
+
+    public Prompt(Scanner scanner, String title, String prompt, String regex){
+        super(scanner, title);
+
+        this.prompt = prompt;
+        this.regex = regex;
+    }
 
     public Prompt(Scanner scanner, String title, String prompt){
         super(scanner, title);
@@ -13,15 +21,19 @@ public class Prompt extends Screen {
     }
 
     public String openScreen(){
-        if(getTitle() != null)
-            System.out.println(getTitle()+"\n");
+        while(true){
+            if(getTitle() != null)
+                System.out.println(getTitle()+"\n");
 
-        System.out.print(prompt + ": ");
+            System.out.print(prompt + ": ");
 
-        String promptResponse = scanner.nextLine();
+            String promptResponse = scanner.nextLine();
 
-        System.out.println();
+            System.out.println();
 
-        return promptResponse;
+            if(promptResponse.matches(regex)) return promptResponse;
+
+            System.out.println("Invalid Input, try again\n");
+        }
     }
 }

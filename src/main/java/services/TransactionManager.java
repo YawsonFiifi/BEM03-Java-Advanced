@@ -6,18 +6,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TransactionManager {
-    private final HashMap<String, List<Transaction>> transactions = new HashMap<String, List<Transaction>>();
+    private final HashMap<String, List<Transaction>> transactions = new HashMap<>();
 
     public void addTransaction(Transaction transaction){
         List<Transaction> userTransactions = transactions.computeIfAbsent(
-                transaction.getAccountNumber(), k -> new ArrayList<Transaction>()
+                transaction.getAccountNumber(), _ -> new ArrayList<>()
         );
 
         userTransactions.add(transaction);
     }
 
     public void viewTransactionsByAccount(String accountNumber){
-        List<Transaction> userTransactions = transactions.get(accountNumber);
+        List<Transaction> userTransactions = transactions.get(accountNumber.toUpperCase());
 
         if(userTransactions == null || userTransactions.isEmpty()){
             System.out.println("""
@@ -64,14 +64,10 @@ public class TransactionManager {
                 Math.abs(netChange)
         ));
 
-        System.out.println(output.toString());
+        System.out.println(output);
     }
 
     public double calculateTotalDeposits(String accountNumber){
-        return transactions.get(accountNumber).stream().mapToDouble(Transaction::getAmount).sum();
-    }
-
-    public double calculateTotalWithdrawals(String accountNumber){
-        return transactions.get(accountNumber).stream().mapToDouble(Transaction::getAmount).sum();
+        return transactions.get(accountNumber.toUpperCase()).stream().mapToDouble(Transaction::getAmount).sum();
     }
 }

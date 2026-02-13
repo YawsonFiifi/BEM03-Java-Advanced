@@ -2,15 +2,25 @@ package services;
 
 import models.Transaction;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class TransactionManager {
-    private final HashMap<String, List<Transaction>> transactions = new HashMap<>();
+    private final Map<String, List<Transaction>> transactions = Collections.synchronizedMap(new HashMap<>());
+    private final FileManager fileManager;
 
-    public void addTransaction(Transaction transaction){
+    public TransactionManager() {
+        this.fileManager = new FileManager();
+    }
+
+    public TransactionManager(FileManager fileManager) {
+        this.fileManager = fileManager;
+    }
+
+    public synchronized void addTransaction(Transaction transaction){
         List<Transaction> userTransactions = transactions.computeIfAbsent(
-                transaction.getAccountNumber(), _ -> new ArrayList<>()
+                transaction.getAccountNumber(), _ -> Collections.synchronizedList(new ArrayList<>())
         );
 
         userTransactions.add(transaction);
@@ -65,6 +75,24 @@ public class TransactionManager {
         ));
 
         System.out.println(output);
+    }
+
+    public void loadTransactions() {
+        try {
+            Map<String, List<Transaction>> loadedTransactions = fileManager.loadTransactions();
+            transactions.clear();
+            transactions.putAll(loadedTransactions);
+        } catch (IOException e) {
+            System.err.println("Error loading transactions: " + e.getMessage());
+        }
+    }
+
+    public void saveTransactions() {
+        try {
+            fileManager.saveTransactions(transactions);
+        } catch (IOException e) {
+            System.err.println("Error saving transactions: " + e.getMessage());
+        }
     }
 
     public double calculateTotalDeposits(String accountNumber){

@@ -5,23 +5,19 @@ import models.exceptions.InsufficientFundsException;
 
 
 abstract public class Account {
-    static int accountCounter = 0;
+    public static int accountCounter = 0;
 
     abstract public void displayAccountDetails();
     abstract public String getAccountType();
     
-    private String accountNumber;
+    private final String accountNumber;
     private String status = "Active";
     private Customer customer;
-    private double balance = 0;
+    private double balance;
 
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
-    }
-
-    public static int getAccountCounter() {
-        return accountCounter;
     }
 
     Account(Customer customer, double initialDeposit) throws AccountCreationException {

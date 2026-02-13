@@ -2,14 +2,14 @@ package models;
 
 
 abstract public class Customer {
-    static int customerCounter = 0;
+    public static int customerCounter = 0;
 
-    private String customerId;
+    private final String customerId;
 
-    private String name;
-    private String contact;
-    private String address;
-    private int age;
+    private final String name;
+    private final String contact;
+    private final String address;
+    private final int age;
 
     public String getCustomerId() {
         return customerId;
@@ -27,26 +27,6 @@ abstract public class Customer {
         return age;
     }
 
-    public Customer setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public Customer setContact(String contact) {
-        this.contact = contact;
-        return this;
-    }
-
-    public Customer setAddress(String address) {
-        this.address = address;
-        return this;
-    }
-
-    public Customer setAge(int age) {
-        this.age = age;
-        return this;
-    }
-
     Customer(String name, int age, String contact, String address){
         this.customerId = String.format("CUS%03d", ++customerCounter);
         this.name = name;
@@ -55,7 +35,6 @@ abstract public class Customer {
         this.address = address;
     }
 
-    abstract void displayCustomerDetails();
     abstract public String getCustomerType();
 
     public String getName(){

@@ -13,6 +13,7 @@ import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
 import services.AccountManager;
+import services.FileManager;
 import services.TransactionManager;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
@@ -20,8 +21,17 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPacka
 void main() {
     Scanner scanner = new Scanner(System.in);
 
+    FileManager fileManager = new FileManager();
     AccountManager accountManager = new AccountManager();
     TransactionManager transactionManager = new TransactionManager();
+
+    if (fileManager.dataFilesExist()) {
+        IO.println("\nloading data from files");
+        accountManager.loadAccounts();
+        transactionManager.loadTransactions();
+        IO.print("Press Enter to Continue...");
+        scanner.nextLine();
+    }
 
     while (true) {
         int menuResponse = new Menu(scanner, "BANK ACCOUNT MANAGEMENT - MAIN MENU", new String[]{
@@ -202,6 +212,38 @@ void main() {
                 continue;
             }
             case 4: {
+                // SAVE/LOAD DATA
+                int dataMenuResponse = new Menu(scanner, "DATA PERSISTENCE", new String[]{
+                        "Save All Data",
+                        "Load All Data"
+                }).openScreen();
+
+                switch (dataMenuResponse) {
+                    case 1: {
+                        IO.println("\n=== SAVING ALL DATA ===");
+                        accountManager.saveAccounts();
+                        transactionManager.saveTransactions();
+                        System.out.println("✓ file save completed successfully\n");
+
+                        break;
+                    }
+                    case 2: {
+                        IO.println("\n=== LOADING ALL DATA ===");
+                        accountManager.loadAccounts();
+                        transactionManager.loadTransactions();
+                        IO.println("✓ file load completed successfully\n");
+
+                        break;
+                    }
+                    default: {
+                        IO.println("Invalid input\n");
+                        break;
+                    }
+                }
+
+                IO.print("Press Enter to Continue...");
+                scanner.nextLine();
+                continue;
             }
             case 5: {
                 Account account;
@@ -268,7 +310,11 @@ void main() {
                 continue;
             }
             case 7: {
-                IO.print("Thank you for using the Bank Account Management System!\n");
+                accountManager.saveAccounts();
+                transactionManager.saveTransactions();
+                IO.println("Data saved successfully!");
+
+                IO.print("\nThank you for using the Bank Account Management System!\n");
                 break;
             }
             default: {

@@ -5,11 +5,21 @@ import models.Account;
 import models.CheckingAccount;
 import models.SavingsAccount;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class AccountManager {
-    private final Map<String, Account> accounts = new HashMap<>();
+    private final Map<String, Account> accounts = Collections.synchronizedMap(new HashMap<>());
+    private final FileManager fileManager;
+
+    public AccountManager() {
+        this.fileManager = new FileManager();
+    }
+
+    public AccountManager(FileManager fileManager) {
+        this.fileManager = fileManager;
+    }
 
     public void addAccount(Account account) {
         accounts.put(account.getAccountNumber(), account);
@@ -66,5 +76,29 @@ public class AccountManager {
         return accounts.values().stream()
                 .mapToDouble(Account::getBalance)
                 .sum();
+    }
+
+    /**
+     * Load accounts from file
+     */
+    public void loadAccounts() {
+        try {
+            Map<String, Account> loadedAccounts = fileManager.loadAccounts();
+            accounts.clear();
+            accounts.putAll(loadedAccounts);
+        } catch (IOException e) {
+            System.err.println("Error loading accounts: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Save accounts to file
+     */
+    public void saveAccounts() {
+        try {
+            fileManager.saveAccounts(accounts);
+        } catch (IOException e) {
+            System.err.println("Error saving accounts: " + e.getMessage());
+        }
     }
 }

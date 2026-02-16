@@ -1,4 +1,5 @@
-import Constants.RegexConstants;
+import Utils.ConcurrencySimulator;
+import Utils.RegexConstants;
 import Screens.Menu;
 import Screens.Prompt;
 import models.*;
@@ -24,6 +25,7 @@ void main() {
     FileManager fileManager = new FileManager();
     AccountManager accountManager = new AccountManager();
     TransactionManager transactionManager = new TransactionManager();
+    ConcurrencySimulator concurrentSimulator = new ConcurrencySimulator(transactionManager);
 
     if (fileManager.dataFilesExist()) {
         IO.println("\nloading data from files");
@@ -38,6 +40,7 @@ void main() {
                 "Create Account",
                 "Manage Accounts",
                 "Perform Transactions",
+                "Run Concurrent Simulation",
                 "Save/Load Data",
                 "Generate Account Statements",
                 "Run Tests",
@@ -209,9 +212,22 @@ void main() {
                 IO.print("Press Enter to Continue...");
                 scanner.nextLine();
 
-                continue;
             }
             case 4: {
+                Account account;
+                try{
+                    account = accountManager.findAccount(new Prompt(scanner, "THREAD-BASED SIMULATION", "Enter Account Number", RegexConstants.ACCOUNT_ID).openScreen());
+                }catch(AccountNotFound e){
+                    System.out.println("Account Not Found");
+                    continue;
+                }
+
+                int numTransactions = Integer.parseInt(new Prompt(scanner, null, "Enter number of transactions", RegexConstants.NUMBER).openScreen());
+
+                concurrentSimulator.simulateConcurrentTransactions(account, numTransactions);
+                continue;
+            }
+            case 5: {
                 // SAVE/LOAD DATA
                 int dataMenuResponse = new Menu(scanner, "DATA PERSISTENCE", new String[]{
                         "Save All Data",
@@ -245,7 +261,7 @@ void main() {
                 scanner.nextLine();
                 continue;
             }
-            case 5: {
+            case 6: {
                 Account account;
 
                 try {
@@ -271,7 +287,7 @@ void main() {
 
                 continue;
             }
-            case 6: {
+            case 7: {
                 IO.println("\n--- RUNNING SYSTEM TESTS (JUnit 5) ---");
 
                 // 1. Create a request to discover tests in your project package
@@ -309,7 +325,7 @@ void main() {
                 scanner.nextLine();
                 continue;
             }
-            case 7: {
+            case 8: {
                 accountManager.saveAccounts();
                 transactionManager.saveTransactions();
                 IO.println("Data saved successfully!");
